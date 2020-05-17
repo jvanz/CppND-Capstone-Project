@@ -15,5 +15,5 @@ find_package(Boost 1.66.0 REQUIRED COMPONENTS system regex thread)
 find_path(Boost_INCLUDE_DIR boost)
 include_directories(${Boost_INCLUDE_DIR})
 
-add_executable(queuesystem src/main.cpp src/server.cpp src/server.hpp)
-TARGET_LINK_LIBRARIES(queuesystem ${Boost_LIBRARIES} pthread)
+add_executable(queue src/main.cpp src/server.cpp src/server.hpp src/session.cpp src/session.hpp)
+TARGET_LINK_LIBRARIES(queue ${Boost_LIBRARIES} pthread)
