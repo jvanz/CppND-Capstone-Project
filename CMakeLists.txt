@@ -17,3 +17,6 @@ include_directories(${Boost_INCLUDE_DIR})
 
 add_executable(queue src/main.cpp src/server.cpp src/server.hpp src/session.cpp src/session.hpp)
 TARGET_LINK_LIBRARIES(queue ${Boost_LIBRARIES} pthread)
+
+add_executable(producer src/client/producer.cpp)
+TARGET_LINK_LIBRARIES(producer ${Boost_LIBRARIES} pthread)
