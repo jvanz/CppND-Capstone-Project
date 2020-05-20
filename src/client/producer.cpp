@@ -2,6 +2,8 @@
 #include <iostream>
 #include <string>
 
+#include <common/message.hpp>
+
 using boost::asio::ip::tcp;
 using namespace std::chrono_literals;
 
@@ -14,9 +16,12 @@ int main(int argc, char* argv[]) {
     boost::asio::connect(s, resolver.resolve("localhost", "8888"));
 
     for (auto x = 0; x < 100; x++) {
-      std::string message = "Message " + std::to_string(x);
-      std::cout << "Sending: " << message << std::endl;
-      boost::asio::write(s, boost::asio::buffer(message));
+      boost::asio::streambuf b;
+      std::ostream os(&b);
+      Message msg(MessageType::SEND, "Msg " + std::to_string(x));
+      os << msg;
+      std::cout << "Message sent: " << msg << std::endl;
+      boost::asio::write(s, b);
       std::this_thread::sleep_for(1s);
     }
 
