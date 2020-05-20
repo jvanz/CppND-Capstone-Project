@@ -13,10 +13,10 @@ SET(Boost_USE_STATIC_LIBS OFF)
 SET(Boost_USE_MULTITHREAD ON)
 find_package(Boost 1.66.0 REQUIRED COMPONENTS system regex thread)
 find_path(Boost_INCLUDE_DIR boost)
-include_directories(${Boost_INCLUDE_DIR})
+include_directories(${Boost_INCLUDE_DIR} ./src/)
 
-add_executable(queue src/main.cpp src/server.cpp src/server.hpp src/session.cpp src/session.hpp)
+add_executable(queue src/main.cpp src/server.cpp src/server.hpp src/session.cpp src/session.hpp src/common/message.hpp src/common/message.cpp src/common/message_queue.hpp)
 TARGET_LINK_LIBRARIES(queue ${Boost_LIBRARIES} pthread)
 
-add_executable(producer src/client/producer.cpp)
+add_executable(producer src/client/producer.cpp src/common/message.hpp src/common/message.cpp)
 TARGET_LINK_LIBRARIES(producer ${Boost_LIBRARIES} pthread)
