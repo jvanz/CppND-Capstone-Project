@@ -1,19 +1,35 @@
+#ifndef __SESSION_HPP__
+#define __SESSION_HPP__
+
+#include <memory>
+
 #include <boost/asio.hpp>
+
+#include <common/message_queue.hpp>
 
 /**
  * class to control and store the socket for the connected clients
  */
 class Session {
  public:
+  Session(boost::asio::ip::tcp::socket&& socket,
+          MessageQueue<Message>* pending);
+
   // TODO RULE OF FIVE
-  Session(boost::asio::ip::tcp::socket&& socket);
+  Session(Session&& other);             // move constructor
+  Session& operator=(Session&& other);  // move assignment
+  // Disable copy. Socket is not copyable
+  Session(const Session& other) = delete;             // copy constructor
+  Session& operator=(const Session& other) = delete;  // copy assignment
 
  private:
   /**
    * Setup the read handler
    */
   void Read();
-  boost::asio::ip::tcp::socket _socket;
-  constexpr static unsigned int _max_length = 1024;
-  char _data[_max_length];
+  std::unique_ptr<boost::asio::ip::tcp::socket> _socket;
+  MessageQueue<Message>* _pending;
+  boost::asio::streambuf _buffer;
 };
+
+#endif
