@@ -5,7 +5,11 @@
 
 #include <boost/asio.hpp>
 
-enum MessageType { SUBSCRIBE = 0, SEND };
+enum MessageType {
+  SUBSCRIBE = 0,  // listen to new message of a topic
+  CREATE,         // create a new topic
+  SEND            // send a message to a topic
+};
 
 class Message {
  public:

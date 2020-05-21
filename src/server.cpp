@@ -34,10 +34,19 @@ void Server::StartThreads() {
     // TODO how to stop the thread?
     using namespace std::chrono_literals;
     for (;;) {
-      std::this_thread::sleep_for(5s);
+      std::this_thread::sleep_for(1s);
       auto message = _pendingMessages->Receive();
       std::cout << "Processing: Type=" << message.GetType()
                 << ", data = " << message.GetData() << std::endl;
+      if (message.GetType() == MessageType::CREATE) {
+        std::cout << "Creating a new topic" << std::endl;
+        AddTopic(Topic(message.GetData()));
+      }
     }
   });
 };
+
+void Server::AddTopic(Topic &&topic) {
+  std::lock_guard<std::mutex> lck(_topicsMtx);
+  _topics[topic.GetName()] = topic;
+}

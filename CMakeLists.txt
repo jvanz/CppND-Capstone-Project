@@ -15,7 +15,7 @@ find_package(Boost 1.66.0 REQUIRED COMPONENTS system regex thread)
 find_path(Boost_INCLUDE_DIR boost)
 include_directories(${Boost_INCLUDE_DIR} ./src/)
 
-add_executable(queue src/main.cpp src/server.cpp src/server.hpp src/session.cpp src/session.hpp src/common/message.hpp src/common/message.cpp src/common/message_queue.hpp)
+add_executable(queue src/main.cpp src/server.cpp src/server.hpp src/session.cpp src/session.hpp src/common/message.hpp src/common/message.cpp src/common/message_queue.hpp src/topic.hpp src/topic.cpp)
 TARGET_LINK_LIBRARIES(queue ${Boost_LIBRARIES} pthread)
 
 add_executable(producer src/client/producer.cpp src/common/message.hpp src/common/message.cpp)
