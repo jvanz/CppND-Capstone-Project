@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "topic.hpp"
 
 Topic::Topic() : _name{""} {};
@@ -19,3 +21,10 @@ Topic &Topic::operator=(Topic &&other) {
   _name = std::move(other._name);
   return *this;
 }
+
+void Topic::Send(Message &&msg) {
+  _messages.Send(std::move(msg));
+  std::cout << "Message published" << std::endl;
+};
+
+Message Topic::Receive() { return _messages.Receive(); };

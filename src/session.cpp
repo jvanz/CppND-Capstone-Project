@@ -29,13 +29,13 @@ void Session::Read() {
       _buffer.prepare(514),
       [this](boost::system::error_code ec, std::size_t length) {
         if (!ec) {
-          _buffer.commit(length);
+          std::cout << "More data!" << std::endl;
           std::istream is(&_buffer);
+          _buffer.commit(length);
           Message msg;
           is >> msg;
           _pending->Send(std::move(msg));
-          std::cout << "New message!" << std::endl;
+          Read();
         }
-        Read();
       });
 };

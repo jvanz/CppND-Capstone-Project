@@ -37,10 +37,19 @@ void Server::StartThreads() {
       std::this_thread::sleep_for(1s);
       auto message = _pendingMessages->Receive();
       std::cout << "Processing: Type=" << message.GetType()
-                << ", data = " << message.GetData() << std::endl;
+                << ", topic = '" + message.GetTopic() << "'"
+                << ", data = '" << message.GetData() << "'" << std::endl;
       if (message.GetType() == MessageType::CREATE) {
         std::cout << "Creating a new topic" << std::endl;
         AddTopic(Topic(message.GetData()));
+      } else if (message.GetType() == MessageType::SEND) {
+        auto topic = FindTopic(message.GetTopic());
+        if (topic) {
+          topic->Send(std::move(message));
+        } else {
+          std::cout << "Topic " << message.GetTopic() << " not found."
+                    << std::endl;
+        }
       }
     }
   });
@@ -48,5 +57,13 @@ void Server::StartThreads() {
 
 void Server::AddTopic(Topic &&topic) {
   std::lock_guard<std::mutex> lck(_topicsMtx);
-  _topics[topic.GetName()] = topic;
+  _topics[topic.GetName()] = std::make_unique<Topic>(topic);
+  std::cout << "Topic created: " << topic.GetName()
+            << ". Topic count: " << _topics.size() << std::endl;
+}
+
+Topic *Server::FindTopic(std::string topicName) {
+  std::lock_guard<std::mutex> lck(_topicsMtx);
+  if (_topics.find(topicName) != _topics.end()) return _topics[topicName].get();
+  return nullptr;
 }

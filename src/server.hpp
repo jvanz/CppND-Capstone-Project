@@ -35,13 +35,14 @@ class Server {
    * This is a thread safe function
    */
   void AddTopic(Topic&& topic);
+  Topic* FindTopic(std::string topicName);
 
   tcp::acceptor _acceptor;
   std::list<std::shared_ptr<Session>> _sessions;
   std::unique_ptr<MessageQueue<Message>> _pendingMessages;
   std::vector<std::thread> _threads;
   std::mutex _topicsMtx;
-  std::unordered_map<std::string, Topic> _topics;
+  std::unordered_map<std::string, std::unique_ptr<Topic>> _topics;
 };
 
 #endif
