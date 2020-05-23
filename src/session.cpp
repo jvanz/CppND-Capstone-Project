@@ -35,8 +35,28 @@ void Session::Read() {
           Message msg;
           is >> msg;
           auto result = std::async(&Server::ProcessPendingMessage, _server,
-                                   std::move(msg));
+                                   std::move(msg), std::ref(*this));
           Read();
         }
       });
 };
+
+void Session::Write(Message& msg) {
+  boost::asio::streambuf b;
+  std::ostream os(&b);
+  os << msg;
+  auto bytes_count = _socket->send(b.data());
+  std::cout << "Message sent: " << msg << ". " << bytes_count << " bytes"
+            << std::endl;
+}
+
+void Session::Listen(Topic& topic) {
+  _listeningThreads.emplace_back([this, &topic]() {
+    using namespace std::chrono_literals;
+    for (;;) {
+      auto message = topic.Receive();
+      Write(message);
+      std::this_thread::sleep_for(1ms);
+    }
+  });
+}

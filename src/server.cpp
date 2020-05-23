@@ -34,10 +34,9 @@ Topic *Server::FindTopic(std::string topicName) {
   return nullptr;
 }
 
-void Server::ProcessPendingMessage(Message &&message) {
+void Server::ProcessPendingMessage(Message &&message, Session &session) {
   using namespace std::chrono_literals;
   std::this_thread::sleep_for(1s);
-  // auto message = _pendingMessages->Receive();
   std::cout << "Processing: Type=" << message.GetType()
             << ", topic = '" + message.GetTopic() << "'"
             << ", data = '" << message.GetData() << "'" << std::endl;
@@ -53,5 +52,11 @@ void Server::ProcessPendingMessage(Message &&message) {
     }
   } else if (message.GetType() == MessageType::SUBSCRIBE) {
     std::cout << "Subscription request: " << message.GetData() << std::endl;
+    auto topic = FindTopic(message.GetData());
+    if (topic) {
+      session.Listen(*topic);
+    } else {
+      std::cout << "Topic " << message.GetTopic() << " not found." << std::endl;
+    }
   }
 }

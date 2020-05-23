@@ -7,6 +7,7 @@
 
 #include <common/message_queue.hpp>
 #include "server.hpp"
+#include "topic.hpp"
 
 class Server;
 /**
@@ -23,14 +24,21 @@ class Session {
   Session(const Session& other) = delete;             // copy constructor
   Session& operator=(const Session& other) = delete;  // copy assignment
 
+  /**
+   * Make the client listen to a topic
+   */
+  void Listen(Topic& topic);
+
  private:
   /**
    * Setup the read handler
    */
   void Read();
+  void Write(Message& msg);
   std::unique_ptr<boost::asio::ip::tcp::socket> _socket;
   Server* _server;
   boost::asio::streambuf _buffer;
+  std::list<std::thread> _listeningThreads;
 };
 
 #endif

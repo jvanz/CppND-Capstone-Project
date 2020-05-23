@@ -25,7 +25,7 @@ class Server {
   /**
    * Member function used to process the messages from the clients
    */
-  void ProcessPendingMessage(Message&& message);
+  void ProcessPendingMessage(Message&& message, Session& session);
 
  private:
   /**
