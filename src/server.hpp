@@ -6,12 +6,14 @@
 #include <unordered_map>
 
 #include <boost/asio.hpp>
-#include <common/message_queue.hpp>
+#include "common/message_queue.hpp"
 
 #include "session.hpp"
 #include "topic.hpp"
 
 using boost::asio::ip::tcp;
+
+class Session;
 
 /**
  * Class to store all the open connection and wait for more connections
@@ -19,7 +21,11 @@ using boost::asio::ip::tcp;
 class Server {
  public:
   Server(boost::asio::io_context& io_context, short port);
-  ~Server();
+
+  /**
+   * Member function used to process the messages from the clients
+   */
+  void ProcessPendingMessage(Message&& message);
 
  private:
   /**
@@ -27,22 +33,19 @@ class Server {
    */
   void Accept();
   /**
-   * Start the threads managed by the server
-   */
-  void StartThreads();
-  /**
    * Add the given topic in the topic list managed by the server
    * This is a thread safe function
    */
   void AddTopic(Topic&& topic);
+  /**
+   * Search for the topic previous created
+   */
   Topic* FindTopic(std::string topicName);
 
   tcp::acceptor _acceptor;
-  std::list<std::shared_ptr<Session>> _sessions;
-  std::unique_ptr<MessageQueue<Message>> _pendingMessages;
-  std::vector<std::thread> _threads;
+  std::list<std::unique_ptr<Session>> _sessions;
   std::mutex _topicsMtx;
-  std::unordered_map<std::string, std::unique_ptr<Topic>> _topics;
+  std::unordered_map<std::string, std::shared_ptr<Topic>> _topics;
 };
 
 #endif

@@ -1,4 +1,5 @@
 #include <common/message.hpp>
+#include <future>
 #include <iostream>
 
 #include "session.hpp"
@@ -6,14 +7,13 @@
 /**
  * class to control and store the socket for the connected clients
  */
-Session::Session(boost::asio::ip::tcp::socket&& socket,
-                 MessageQueue<Message>* pending)
-    : _pending(pending) {
+Session::Session(boost::asio::ip::tcp::socket&& socket, Server* server)
+    : _server{server} {
   _socket = std::make_unique<boost::asio::ip::tcp::socket>(std::move(socket));
   Read();
 };
 
-Session::Session(Session&& other) : _pending(other._pending) {
+Session::Session(Session&& other) : _server{other._server} {
   _socket = std::move(other._socket);
   // TODO move the _data
 };
@@ -34,7 +34,8 @@ void Session::Read() {
           _buffer.commit(length);
           Message msg;
           is >> msg;
-          _pending->Send(std::move(msg));
+          auto result = std::async(&Server::ProcessPendingMessage, _server,
+                                   std::move(msg));
           Read();
         }
       });

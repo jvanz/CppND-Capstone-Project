@@ -6,14 +6,15 @@
 #include <boost/asio.hpp>
 
 #include <common/message_queue.hpp>
+#include "server.hpp"
 
+class Server;
 /**
  * class to control and store the socket for the connected clients
  */
 class Session {
  public:
-  Session(boost::asio::ip::tcp::socket&& socket,
-          MessageQueue<Message>* pending);
+  Session(boost::asio::ip::tcp::socket&& socket, Server* server);
 
   // TODO RULE OF FIVE
   Session(Session&& other);             // move constructor
@@ -28,7 +29,7 @@ class Session {
    */
   void Read();
   std::unique_ptr<boost::asio::ip::tcp::socket> _socket;
-  MessageQueue<Message>* _pending;
+  Server* _server;
   boost::asio::streambuf _buffer;
 };
 
