@@ -16,8 +16,10 @@ class Message {
   // TODO rule of five?
   Message(){};
   Message(MessageType type, std::string data);
+  Message(MessageType type, std::string topic, std::string data);
   MessageType GetType() const { return _type; };
   std::string GetData() const { return _data; };
+  std::string GetTopic() const { return _topic; };
 
   friend std::ostream &operator<<(std::ostream &output, const Message &msg);
   friend std::istream &operator>>(std::istream &input, Message &msg);
@@ -25,9 +27,18 @@ class Message {
  private:
   MessageType _type;
   std::string _data;
+  std::string _topic;
 };
 
+/**
+ * Input and outpur operator to serialize and deserialize Message objects
+ */
 std::ostream &operator<<(std::ostream &output, const Message &msg);
 std::istream &operator>>(std::istream &input, Message &msg);
+/**
+ * Input and outpur operator to serialize and deserialize MessageType values
+ */
+std::ostream &operator<<(std::ostream &output, const MessageType &type);
+std::istream &operator>>(std::istream &input, MessageType &type);
 
 #endif
