@@ -24,33 +24,12 @@ std::istream &operator>>(std::istream &input, MessageType &type) {
 }
 
 std::ostream &operator<<(std::ostream &output, const Message &msg) {
-  output << msg._type << " ";
-  if (msg._type == MessageType::SEND)
-    output << msg._topic.size() << " " << msg._topic << " ";
-  output << msg._data.size() << " " << msg._data;
-  return output;
+  boost::archive::text_oarchive oa(output);
+  oa << msg;
 }
 
 std::istream &operator>>(std::istream &input, Message &msg) {
-  std::istream::sentry s(input);
-  if (s) {
-    input >> msg._type;
-    char whitespace;
-    input.get(whitespace);
-    if (msg._type == MessageType::SEND) {
-      std::streamsize topic_length = 0;
-      input >> topic_length;
-      input.get(whitespace);
-      char topic[topic_length];
-      input.read(topic, topic_length);
-      msg._topic = std::string(topic, topic_length);
-    }
-    std::streamsize data_length = 0;
-    input >> data_length;
-    input.get(whitespace);
-    char data[data_length];
-    input.read(data, data_length);
-    msg._data = std::string(data, data_length);
-  }
+  boost::archive::text_iarchive ia(input);
+  ia >> msg;
   return input;
 }

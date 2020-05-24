@@ -11,7 +11,7 @@ set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
 
 SET(Boost_USE_STATIC_LIBS OFF)
 SET(Boost_USE_MULTITHREAD ON)
-find_package(Boost 1.66.0 REQUIRED COMPONENTS system regex thread)
+find_package(Boost 1.66.0 REQUIRED COMPONENTS system regex thread serialization)
 find_path(Boost_INCLUDE_DIR boost)
 include_directories(${Boost_INCLUDE_DIR} ./src/)
 

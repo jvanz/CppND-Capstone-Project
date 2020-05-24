@@ -4,6 +4,8 @@
 #include <string>
 
 #include <boost/asio.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
 enum MessageType {
   SUBSCRIBE = 0,  // listen to new message of a topic
@@ -23,6 +25,14 @@ class Message {
 
   friend std::ostream &operator<<(std::ostream &output, const Message &msg);
   friend std::istream &operator>>(std::istream &input, Message &msg);
+  friend class boost::serialization::access;
+  template<class Archive>
+  void serialize(Archive &ar, const unsigned int version)
+  {
+	  ar & _type;
+	  ar & _data;
+	  ar & _topic;
+  }
 
  private:
   MessageType _type;
