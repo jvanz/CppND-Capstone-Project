@@ -15,15 +15,22 @@ int main(int argc, char* argv[]) {
     tcp::resolver resolver(io_context);
     boost::asio::connect(s, resolver.resolve("localhost", "8888"));
 
-    for (auto x = 0; x < 100; x++) {
-      boost::asio::streambuf b;
-      std::ostream os(&b);
-      Message msg(MessageType::SEND, "Msg " + std::to_string(x));
-      os << msg;
-      std::cout << "Message sent: " << msg << std::endl;
-      boost::asio::write(s, b);
-      std::this_thread::sleep_for(1s);
+    boost::asio::streambuf b;
+    std::ostream os(&b);
+    Message msg(MessageType::CREATE, "test");
+    os << msg;
+    boost::asio::write(s, b);
+
+    for (auto x = 0; x < 10; x++) {
+      // std::this_thread::sleep_for(1s);
+      boost::asio::streambuf b2;
+      std::ostream os2(&b2);
+      Message msg2(MessageType::SEND, "test", "message " + std::to_string(x));
+      os2 << msg2;
+      std::cout << "Send: " << msg.GetID() << std::endl;
+      boost::asio::write(s, b2);
     }
+    io_context.run();
 
   } catch (std::exception& e) {
     std::cerr << "Exception: " << e.what() << "\n";

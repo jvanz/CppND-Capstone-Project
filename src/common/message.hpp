@@ -3,9 +3,13 @@
 
 #include <string>
 
-#include <boost/asio.hpp>
-#include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/asio.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_serialize.hpp>
 
 enum MessageType {
   SUBSCRIBE = 0,  // listen to new message of a topic
@@ -16,25 +20,28 @@ enum MessageType {
 class Message {
  public:
   // TODO rule of five?
-  Message(){};
+  Message() : _id{boost::uuids::random_generator()()} {};
   Message(MessageType type, std::string data);
   Message(MessageType type, std::string topic, std::string data);
   MessageType GetType() const { return _type; };
   std::string GetData() const { return _data; };
   std::string GetTopic() const { return _topic; };
+  boost::uuids::uuid GetID() const { return _id; };
 
   friend std::ostream &operator<<(std::ostream &output, const Message &msg);
   friend std::istream &operator>>(std::istream &input, Message &msg);
+
   friend class boost::serialization::access;
-  template<class Archive>
-  void serialize(Archive &ar, const unsigned int version)
-  {
-	  ar & _type;
-	  ar & _data;
-	  ar & _topic;
+  template <class Archive>
+  void serialize(Archive &ar, const unsigned int version) {
+    ar &_id;
+    ar &_type;
+    ar &_data;
+    ar &_topic;
   }
 
  private:
+  boost::uuids::uuid _id;
   MessageType _type;
   std::string _data;
   std::string _topic;
@@ -45,10 +52,5 @@ class Message {
  */
 std::ostream &operator<<(std::ostream &output, const Message &msg);
 std::istream &operator>>(std::istream &input, Message &msg);
-/**
- * Input and outpur operator to serialize and deserialize MessageType values
- */
-std::ostream &operator<<(std::ostream &output, const MessageType &type);
-std::istream &operator>>(std::istream &input, MessageType &type);
 
 #endif

@@ -6,11 +6,11 @@
 
 using boost::asio::ip::tcp;
 using namespace std::chrono_literals;
-void read(boost::system::error_code ec, std::size_t length);
 
 class Consumer {
  public:
-  Consumer(tcp::socket&& socket) : _socket(std::move(socket)) {
+  Consumer(tcp::socket&& socket)
+      : _socket(std::move(socket)), _message_received{0} {
     Read();
     Subscribe();
   }
@@ -20,7 +20,6 @@ class Consumer {
     std::ostream os(&_write_buffer);
     Message msg(MessageType::SUBSCRIBE, "test");
     os << msg;
-    std::cout << "Message sent: " << msg << std::endl;
     boost::asio::write(_socket, _write_buffer);
   };
 
@@ -32,8 +31,10 @@ class Consumer {
             std::istream is(&_read_buffer);
             _read_buffer.commit(length);
             Message msg;
+            _message_received += 1;
             is >> msg;
-            std::cout << "Received: " << msg << std::endl;
+            std::cout << "Received: " << msg.GetID() << ": " << msg.GetData()
+                      << " =--> Total: " << _message_received << std::endl;
           }
           Read();
         });
@@ -42,6 +43,7 @@ class Consumer {
   boost::asio::streambuf _read_buffer;
   boost::asio::streambuf _write_buffer;
   tcp::socket _socket;
+  unsigned int _message_received;
 };
 
 int main(int argc, char* argv[]) {
