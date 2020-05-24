@@ -20,3 +20,6 @@ TARGET_LINK_LIBRARIES(queue ${Boost_LIBRARIES} pthread)
 
 add_executable(producer src/client/producer.cpp src/common/message.hpp src/common/message.cpp)
 TARGET_LINK_LIBRARIES(producer ${Boost_LIBRARIES} pthread)
+
+add_executable(consumer src/client/consumer.cpp src/common/message.hpp src/common/message.cpp)
+TARGET_LINK_LIBRARIES(consumer ${Boost_LIBRARIES} pthread)
