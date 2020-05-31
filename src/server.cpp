@@ -58,9 +58,11 @@ void Server::ProcessPendingMessage(Message &&message, Session &session) {
     std::cout << "Subscription request: " << message.GetData() << std::endl;
     auto topic = FindTopic(message.GetData());
     if (topic) {
+      session.Write(SubscribedMessage(message.GetTopic()));
       session.Listen(*topic);
     } else {
       std::cout << "Topic " << message.GetTopic() << " not found." << std::endl;
+      session.Write(TopicNotFoundMessage(message.GetTopic()));
     }
   }
 }

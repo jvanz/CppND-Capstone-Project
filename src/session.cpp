@@ -55,6 +55,8 @@ void Session::Write(Message& msg) {
             << " bytes" << std::endl;
 }
 
+void Session::Write(Message&& msg) { Write(msg); }
+
 void Session::Listen(Topic& topic) {
   _listeningThreads.emplace_back([this, &topic]() {
     using namespace std::chrono_literals;

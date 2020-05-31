@@ -11,13 +11,14 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_serialize.hpp>
 
-
 constexpr unsigned char MESSAGE_TERMINATION_CHAR = '\t';
 
 enum MessageType {
-  SUBSCRIBE = 0,  // listen to new message of a topic
-  CREATE,         // create a new topic
-  SEND            // send a message to a topic
+  SUBSCRIBE = 0,    // listen to new message of a topic
+  CREATE,           // create a new topic
+  SEND,             // send a message to a topic
+  TOPIC_NOT_FOUND,  // tell the client that the topic does not exist
+  SUBSCRIBED
 };
 
 class Message {
@@ -48,6 +49,26 @@ class Message {
   MessageType _type;
   std::string _data;
   std::string _topic;
+};
+
+/**
+ * Sub class to represent a message to the client telling it topic does not
+ * exist
+ */
+class TopicNotFoundMessage : public Message {
+ public:
+  TopicNotFoundMessage(std::string topic)
+      : Message(MessageType::TOPIC_NOT_FOUND, topic, "Topic not found!"){};
+};
+
+/**
+ * Sub class to represent a message to the client telling it is subscribed to
+ * the topic
+ * */
+class SubscribedMessage : public Message {
+ public:
+  SubscribedMessage(std::string topic)
+      : Message(MessageType::SUBSCRIBED, topic, "Subscribed topic"){};
 };
 
 /**

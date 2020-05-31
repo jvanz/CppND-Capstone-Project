@@ -28,6 +28,7 @@ class Session {
    * Make the client listen to a topic
    */
   void Listen(Topic& topic);
+  void Write(Message&& msg);
 
  private:
   /**
