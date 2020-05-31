@@ -11,6 +11,9 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_serialize.hpp>
 
+
+constexpr unsigned char MESSAGE_TERMINATION_CHAR = '\t';
+
 enum MessageType {
   SUBSCRIBE = 0,  // listen to new message of a topic
   CREATE,         // create a new topic

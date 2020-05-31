@@ -24,15 +24,18 @@ class Consumer {
   };
 
   void Read() {
-    _socket.async_read_some(
-        _read_buffer.prepare(514),
+    boost::asio::async_read_until(
+        _socket, _read_buffer, MESSAGE_TERMINATION_CHAR,
         [this](boost::system::error_code ec, std::size_t length) {
           if (!ec) {
-            std::istream is(&_read_buffer);
-            _read_buffer.commit(length);
+            auto bufs = _read_buffer.data();
+            std::istringstream is(
+                std::string(boost::asio::buffers_begin(bufs),
+                            boost::asio::buffers_begin(bufs) + length));
             Message msg;
-            _message_received += 1;
             is >> msg;
+            _message_received += 1;
+            _read_buffer.consume(length);
             std::cout << "Received: " << msg.GetID() << ": " << msg.GetData()
                       << " =--> Total: " << _message_received << std::endl;
           }

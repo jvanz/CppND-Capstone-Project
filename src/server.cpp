@@ -36,8 +36,12 @@ Topic *Server::FindTopic(std::string topicName) {
 
 void Server::ProcessPendingMessage(Message &&message, Session &session) {
   using namespace std::chrono_literals;
-  std::this_thread::sleep_for(1s);
-  std::cout << "Processing: Type=" << message.GetType()
+  auto time = 50ms;
+  std::this_thread::sleep_for(time);
+
+  std::cout << "Processing: "
+            << "(" << message.GetID() << ")"
+            << " Type=" << message.GetType()
             << ", topic = '" + message.GetTopic() << "'"
             << ", data = '" << message.GetData() << "'" << std::endl;
   if (message.GetType() == MessageType::CREATE) {

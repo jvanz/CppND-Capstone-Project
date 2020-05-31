@@ -25,19 +25,24 @@ Session& Session::operator=(Session&& other) {
 };
 
 void Session::Read() {
-  _socket->async_read_some(
-      _buffer.prepare(514),
+  boost::asio::async_read_until(
+      *_socket, _buffer, MESSAGE_TERMINATION_CHAR,
       [this](boost::system::error_code ec, std::size_t length) {
+        std::cout << "More data! Error: " << ec << ". Length: " << length
+                  << " bytes" << std::endl;
         if (!ec) {
-          std::cout << "More data!" << std::endl;
-          std::istream is(&_buffer);
-          _buffer.commit(length);
+          auto bufs = _buffer.data();
+          std::istringstream is(
+              std::string(boost::asio::buffers_begin(bufs),
+                          boost::asio::buffers_begin(bufs) + length));
+          _buffer.consume(length);
           Message msg;
           is >> msg;
           auto result = std::async(&Server::ProcessPendingMessage, _server,
                                    std::move(msg), std::ref(*this));
-          Read();
+          result.wait();
         }
+        Read();
       });
 };
 

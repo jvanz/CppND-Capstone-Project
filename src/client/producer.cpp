@@ -19,17 +19,25 @@ int main(int argc, char* argv[]) {
     std::ostream os(&b);
     Message msg(MessageType::CREATE, "test");
     os << msg;
-    boost::asio::write(s, b);
+    auto length = boost::asio::write(s, b);
+    std::cout << "Sent: " << msg.GetID() << ". Length: " << length << std::endl;
 
-    for (auto x = 0; x < 10; x++) {
-      // std::this_thread::sleep_for(1s);
+    for (auto x = 0; x < 100; x++) {
+      auto time = 100ms;
+      std::this_thread::sleep_for(time);
       boost::asio::streambuf b2;
       std::ostream os2(&b2);
       Message msg2(MessageType::SEND, "test", "message " + std::to_string(x));
       os2 << msg2;
-      std::cout << "Send: " << msg.GetID() << std::endl;
-      boost::asio::write(s, b2);
+      length = boost::asio::write(s, b2);
+      std::cout << "Sent: " << msg2.GetID() << ". Length: " << length + 1
+                << ". Count: " << x << std::endl;
     }
+
+    boost::asio::streambuf read_buffer;
+    s.async_read_some(
+        read_buffer.prepare(512),
+        [&read_buffer](boost::system::error_code ec, std::size_t length) {});
     io_context.run();
 
   } catch (std::exception& e) {
