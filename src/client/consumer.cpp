@@ -21,9 +21,9 @@ class Consumer {
  public:
   Consumer(tcp::socket&& socket) : _socket(std::move(socket)){};
 
-  void Subscribe(ReadCallback callback) {
+  void Subscribe(std::string topic, ReadCallback callback) {
     std::ostream os(&_write_buffer);
-    Message msg(MessageType::SUBSCRIBE, "test");
+    SubscriptionRequestMessage msg(topic);
     os << msg;
     Read(callback);
     boost::asio::write(_socket, _write_buffer);
@@ -38,6 +38,9 @@ class Consumer {
                     << " bytes" << std::endl;
           if (!ec) {
             auto bufs = _read_buffer.data();
+            std::cout << std::string(boost::asio::buffers_begin(bufs),
+                                     boost::asio::buffers_begin(bufs) + length)
+                      << std::endl;
             std::istringstream is(
                 std::string(boost::asio::buffers_begin(bufs),
                             boost::asio::buffers_begin(bufs) + length));
@@ -69,13 +72,21 @@ void defaultSubscribeCallback(Consumer* consumer, Message&& msg) {
     consumer->Read(defaultReadCallback);
   } else if (msg.GetType() == MessageType::TOPIC_NOT_FOUND) {
     std::this_thread::sleep_for(1s);
-    consumer->Subscribe(defaultSubscribeCallback);
+    consumer->Subscribe(msg.GetTopic(), defaultSubscribeCallback);
   } else {
     std::cout << "Message type not supported" << std::endl;
   }
 };
 
 int main(int argc, char* argv[]) {
+  if (argc != 4) {
+    std::cerr << "Invalid arguments. Expected: server port topic" << std::endl;
+    return -1;
+  }
+  std::string server(argv[1]);
+  std::string port(argv[2]);
+  std::string topic(argv[3]);
+
   try {
     boost::asio::io_context io_context;
     // prevent the context to stop if there are no events in the loop
@@ -84,10 +95,10 @@ int main(int argc, char* argv[]) {
 
     tcp::resolver resolver(io_context);
     tcp::socket socket(io_context);
-    boost::asio::connect(socket, resolver.resolve("localhost", "8888"));
+    boost::asio::connect(socket, resolver.resolve(server, port));
 
     Consumer consumer(std::move(socket));
-    consumer.Subscribe(defaultSubscribeCallback);
+    consumer.Subscribe(topic, defaultSubscribeCallback);
     io_context.run();
     std::cout << "Bye!" << std::endl;
 
