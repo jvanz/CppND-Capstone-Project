@@ -18,7 +18,7 @@ enum MessageType {
   CREATE,           // create a new topic
   SEND,             // send a message to a topic
   TOPIC_NOT_FOUND,  // tell the client that the topic does not exist
-  SUBSCRIBED
+  SUBSCRIBED        //  tell the client it is subscribed to the topic
 };
 
 class Message {
@@ -69,6 +69,15 @@ class SubscribedMessage : public Message {
  public:
   SubscribedMessage(std::string topic)
       : Message(MessageType::SUBSCRIBED, topic, "Subscribed topic"){};
+};
+
+/**
+ * Sub class to represent a message to the server telling it which topic the
+ * client would like to subscribe to */
+class SubscriptionRequestMessage : public Message {
+ public:
+  SubscriptionRequestMessage(std::string topic)
+      : Message(MessageType::SUBSCRIBE, topic, ""){};
 };
 
 /**

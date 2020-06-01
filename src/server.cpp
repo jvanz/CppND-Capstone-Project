@@ -56,7 +56,7 @@ void Server::ProcessPendingMessage(Message &&message, Session &session) {
     }
   } else if (message.GetType() == MessageType::SUBSCRIBE) {
     std::cout << "Subscription request: " << message.GetData() << std::endl;
-    auto topic = FindTopic(message.GetData());
+    auto topic = FindTopic(message.GetTopic());
     if (topic) {
       session.Write(SubscribedMessage(message.GetTopic()));
       session.Listen(*topic);

@@ -52,7 +52,9 @@ void Session::Write(Message& msg) {
   os << msg;
   auto bytes_count = _socket->send(b.data());
   std::cout << "Message sent: " << msg.GetID() << ". " << bytes_count
-            << " bytes" << std::endl;
+            << " bytes -> Type: " << msg.GetType()
+            << ", topic: " << msg.GetTopic() << ", data: " << msg.GetData()
+            << std::endl;
 }
 
 void Session::Write(Message&& msg) { Write(msg); }
