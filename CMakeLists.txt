@@ -18,8 +18,8 @@ include_directories(${Boost_INCLUDE_DIR} ./src/)
 add_executable(queue src/main.cpp src/server.cpp src/server.hpp src/session.cpp src/session.hpp src/common/message.hpp src/common/message.cpp src/common/message_queue.hpp src/topic.hpp src/topic.cpp)
 TARGET_LINK_LIBRARIES(queue ${Boost_LIBRARIES} pthread)
 
-add_executable(producer src/client/producer.cpp src/common/message.hpp src/common/message.cpp)
+add_executable(producer src/client/producer.cpp src/common/message.hpp src/common/message.cpp src/client/client.hpp src/client/client.cpp)
 TARGET_LINK_LIBRARIES(producer ${Boost_LIBRARIES} pthread)
 
-add_executable(consumer src/client/consumer.cpp src/common/message.hpp src/common/message.cpp)
+add_executable(consumer src/client/consumer.cpp src/common/message.hpp src/common/message.cpp src/client/client.hpp src/client/client.cpp)
 TARGET_LINK_LIBRARIES(consumer ${Boost_LIBRARIES} pthread)

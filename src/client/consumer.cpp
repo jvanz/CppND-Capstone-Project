@@ -4,73 +4,44 @@
 
 #include <common/message.hpp>
 
+#include "client.hpp"
+
 using boost::asio::ip::tcp;
-using namespace std::chrono_literals;
 
-// Forward declarion
-class Consumer;
-// Callback function used un the Consumer class methods
-using ReadCallback = std::function<void(Consumer*, Message&&)>;
-// The definiton of the default callbacks for the subscribe and read methods
-void defaultReadCallback(Consumer* consumer, Message&& msg);
-void defaultSubscribeCallback(Consumer* consumer, Message&& msg);
+// Declaration of the default callbacks for the subscribe and read methods
+void defaultReadCallback(Client* consumer, Message&& msg);
+void defaultSubscribeCallback(Client* consumer, Message&& msg);
 
+// just to keep track of how many messages has been received.
 static unsigned int messagesCount = 0;
 
-class Consumer {
- public:
-  Consumer(tcp::socket&& socket) : _socket(std::move(socket)){};
-
-  void Subscribe(std::string topic, ReadCallback callback) {
-    std::ostream os(&_write_buffer);
-    SubscriptionRequestMessage msg(topic);
-    os << msg;
-    Read(callback);
-    boost::asio::write(_socket, _write_buffer);
-  };
-
-  void Read(ReadCallback callback) {
-    std::cout << "Read()" << std::endl;
-    boost::asio::async_read_until(
-        _socket, _read_buffer, MESSAGE_TERMINATION_CHAR,
-        [this, callback](boost::system::error_code ec, std::size_t length) {
-          std::cout << "More data! Error: " << ec << ". Length: " << length
-                    << " bytes" << std::endl;
-          if (!ec) {
-            auto bufs = _read_buffer.data();
-            std::cout << std::string(boost::asio::buffers_begin(bufs),
-                                     boost::asio::buffers_begin(bufs) + length)
-                      << std::endl;
-            std::istringstream is(
-                std::string(boost::asio::buffers_begin(bufs),
-                            boost::asio::buffers_begin(bufs) + length));
-            Message msg;
-            is >> msg;
-            _read_buffer.consume(length);
-            callback(this, std::move(msg));
-          }
-        });
-  };
-
- private:
-  boost::asio::streambuf _read_buffer;
-  boost::asio::streambuf _write_buffer;
-  tcp::socket _socket;
-};
-
-void defaultReadCallback(Consumer* consumer, Message&& msg) {
+/**
+ * This default callback for the message received from the queue system is print
+ * the data into the console.
+ */
+void defaultReadCallback(Client* consumer, Message&& msg) {
   messagesCount += 1;
   std::cout << "Received: " << msg.GetID() << ": " << msg.GetData()
             << " =--> Total: " << messagesCount << std::endl;
   consumer->Read(defaultReadCallback);
 };
 
-void defaultSubscribeCallback(Consumer* consumer, Message&& msg) {
+/**
+ * Default callback to process the response from the queue server about the
+ * subscription request.
+ *
+ * If the server tells the client that's not possible to subscribe, the client
+ * try again after one second. If the subscription request succeeds, the client
+ * register a callback for all messages sent by the server.
+ */
+void defaultSubscribeCallback(Client* consumer, Message&& msg) {
   std::cout << "Subscribe callback : " << msg.GetTopic() << " -> "
             << msg.GetData() << "(" << msg.GetID() << ")" << std::endl;
   if (msg.GetType() == MessageType::SUBSCRIBED) {
+    // let's print any message received by the server
     consumer->Read(defaultReadCallback);
   } else if (msg.GetType() == MessageType::TOPIC_NOT_FOUND) {
+    // no success. Wait a little bit and try again
     std::this_thread::sleep_for(1s);
     consumer->Subscribe(msg.GetTopic(), defaultSubscribeCallback);
   } else {
@@ -79,6 +50,7 @@ void defaultSubscribeCallback(Consumer* consumer, Message&& msg) {
 };
 
 int main(int argc, char* argv[]) {
+  // get the data necessary to run
   if (argc != 4) {
     std::cerr << "Invalid arguments. Expected: server port topic" << std::endl;
     return -1;
@@ -93,17 +65,16 @@ int main(int argc, char* argv[]) {
     boost::asio::executor_work_guard<boost::asio::io_context::executor_type>
         work = boost::asio::make_work_guard(io_context);
 
-    tcp::resolver resolver(io_context);
-    tcp::socket socket(io_context);
-    boost::asio::connect(socket, resolver.resolve(server, port));
-
-    Consumer consumer(std::move(socket));
+    // Connect to the queue server
+    Client consumer(io_context, server, port);
+    // Subscribe to a topic
     consumer.Subscribe(topic, defaultSubscribeCallback);
     io_context.run();
     std::cout << "Bye!" << std::endl;
 
   } catch (std::exception& e) {
     std::cerr << "Exception: " << e.what() << "\n";
+    return -1;
   }
 
   return 0;
