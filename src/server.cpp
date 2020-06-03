@@ -23,9 +23,11 @@ void Server::Accept() {
 
 void Server::AddTopic(Topic &&topic) {
   std::lock_guard<std::mutex> lck(_topicsMtx);
-  _topics[topic.GetName()] = std::make_shared<Topic>(topic);
-  std::cout << "Topic created: " << topic.GetName()
-            << ". Topic count: " << _topics.size() << std::endl;
+  if (_topics.find(topic.GetName()) == _topics.end()) {
+    _topics[topic.GetName()] = std::make_shared<Topic>(topic);
+    std::cout << "Topic created: " << topic.GetName()
+              << ". Topic count: " << _topics.size() << std::endl;
+  }
 }
 
 Topic *Server::FindTopic(std::string topicName) {
@@ -35,10 +37,6 @@ Topic *Server::FindTopic(std::string topicName) {
 }
 
 void Server::ProcessPendingMessage(Message &&message, Session &session) {
-  using namespace std::chrono_literals;
-  auto time = 50ms;
-  std::this_thread::sleep_for(time);
-
   std::cout << "Processing: "
             << "(" << message.GetID() << ")"
             << " Type=" << message.GetType()
@@ -46,7 +44,14 @@ void Server::ProcessPendingMessage(Message &&message, Session &session) {
             << ", data = '" << message.GetData() << "'" << std::endl;
   if (message.GetType() == MessageType::CREATE) {
     std::cout << "Creating a new topic" << std::endl;
-    AddTopic(Topic(message.GetData()));
+    AddTopic(Topic(message.GetTopic()));
+    auto topic = FindTopic(message.GetTopic());
+    if (topic) {
+      session.Write(TopicCreatedMessage(message.GetTopic()));
+    } else {
+      std::cout << "Topic " << message.GetTopic() << " not found." << std::endl;
+      session.Write(CannotCreateTopicMessage(message.GetTopic()));
+    }
   } else if (message.GetType() == MessageType::SEND) {
     auto topic = FindTopic(message.GetTopic());
     if (topic) {
