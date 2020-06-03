@@ -14,11 +14,13 @@
 constexpr unsigned char MESSAGE_TERMINATION_CHAR = '\t';
 
 enum MessageType {
-  SUBSCRIBE = 0,    // listen to new message of a topic
-  CREATE,           // create a new topic
-  SEND,             // send a message to a topic
-  TOPIC_NOT_FOUND,  // tell the client that the topic does not exist
-  SUBSCRIBED        //  tell the client it is subscribed to the topic
+  SUBSCRIBE = 0,       // listen to new message of a topic
+  CREATE,              // create a new topic
+  SEND,                // send a message to a topic
+  TOPIC_NOT_FOUND,     // tell the client that the topic does not exist
+  SUBSCRIBED,          //  tell the client it is subscribed to the topic
+  TOPIC_CREATED,       //  tell client that topic is successfully created
+  CANNOT_CREATE_TOPIC  // tell client topic creation failed
 };
 
 class Message {
@@ -77,7 +79,37 @@ class SubscribedMessage : public Message {
 class SubscriptionRequestMessage : public Message {
  public:
   SubscriptionRequestMessage(std::string topic)
-      : Message(MessageType::SUBSCRIBE, topic, ""){};
+      : Message(MessageType::SUBSCRIBE, topic, "Subscription request"){};
+};
+
+/**
+ * Sub class to represent a message to the server telling it to create a
+ * new topic */
+class CreateTopicMessage : public Message {
+ public:
+  CreateTopicMessage(std::string topic)
+      : Message(MessageType::CREATE, topic, "Create topic"){};
+};
+
+/**
+ * Sub class to represent a message to the client telling it that the topic has
+ * benn created
+ */
+class TopicCreatedMessage : public Message {
+ public:
+  TopicCreatedMessage(std::string topic)
+      : Message(MessageType::TOPIC_CREATED, topic, "Topic Created"){};
+};
+
+/**
+ * Sub class to represent a message to the client telling it the server cannot
+ * create the topic
+ * */
+class CannotCreateTopicMessage : public Message {
+ public:
+  CannotCreateTopicMessage(std::string topic)
+      : Message(MessageType::CANNOT_CREATE_TOPIC, topic,
+                "Cannot create topic"){};
 };
 
 /**
