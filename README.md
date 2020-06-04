@@ -16,6 +16,15 @@ This project requires boost [asio](https://www.boost.org/doc/libs/1_66_0/doc/htm
 
 ## Basic Build Instructions
 
+If you are in a Ubuntu box, you need to install a more recent Boost Asio version, the version 1.66.0. For that, there 
+is a target in the Makefile used to install the right boost version. From the root of the project you can run:
+
+```
+make boost
+```
+
+Once you have the right boost version, you can build the project with the following commands:
+
 ```
 mkdir build && cd build
 cmake .. && make
