@@ -5,16 +5,18 @@
 #include <mutex>
 #include <queue>
 
-#include "message.hpp"
-
 /**
  * Message queue to communicate between the threads
  */
 template <class T>
 class MessageQueue {
  public:
-  // TODO rule of five
+	 // TODO rule of five
   MessageQueue(){};
+  MessageQueue(MessageQueue<T> &&other) noexcept {};
+  MessageQueue(const MessageQueue<T> &other) noexcept {};
+  MessageQueue &operator=(MessageQueue<T> &other) noexcept {};
+  MessageQueue &operator=(const MessageQueue<T> &&other) noexcept {};
 
   /**
    * Adds a new item in the queue
@@ -40,6 +42,7 @@ class MessageQueue {
   };
 
  private:
+  // TODO needs to be static?
   static std::mutex _mutex;  // cannot access the queue concurrently
   std::condition_variable cv;
   std::queue<T> _queue;  // pending messages
