@@ -13,17 +13,6 @@ Session::Session(boost::asio::ip::tcp::socket&& socket, Server* server)
   Read();
 };
 
-Session::Session(Session&& other) : _server{other._server} {
-  _socket = std::move(other._socket);
-  // TODO move the _data
-};
-
-Session& Session::operator=(Session&& other) {
-  _socket = std::move(other._socket);
-  // TODO move the _data
-  return *this;
-};
-
 void Session::Read() {
   boost::asio::async_read_until(
       *_socket, _buffer, MESSAGE_TERMINATION_CHAR,
@@ -38,7 +27,7 @@ void Session::Read() {
           _buffer.consume(length);
           Message msg;
           is >> msg;
-          auto result = std::async(&Server::ProcessPendingMessage, _server,
+          auto result = std::async(std::launch::async ,&Server::ProcessPendingMessage, _server,
                                    std::move(msg), std::ref(*this));
           result.wait();
         }
