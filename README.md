@@ -131,3 +131,79 @@ will log in the console all the message sent by the queue system, including the
 message ID. The program will run until the user kill it.
 
 You can do this step multiple time, if you want to
+
+### Project rubric
+
+#### Loops, Functions, I/O
+
+- The project demonstrates an understanding of C++ functions and control structures:
+  server.hpp, server.cpp, session.hpp, session.cpp, topic.hpp, topic.cpp, common/message.hpp, common/message.cpp, message_queue.hpp
+
+- The project reads data from a file and process the data, or the program writes data to a file.
+  TODO
+
+- The project accepts user input and processes the input:
+  client/producer.cpp line 25, client/consumer.cpp line 52, main.cpp
+
+#### Object Oriented Programming
+
+- The project uses Object Oriented Programming techniques:
+  server.hpp, server.cpp, session.hpp, session.cpp, topic.hpp, topic.cpp, common/message.hpp, common/message.cpp, message_queue.hpp
+
+- Classes use appropriate access specifiers for class members:
+  server.hpp, server.cpp, session.hpp, session.cpp, topic.hpp, topic.cpp, common/message.hpp, common/message.cpp, message_queue.hpp
+
+- Class constructors utilize member initialization lists:
+  sercer.cpp line 8, session.cpp line 10, common/message.cpp line 3
+
+- Classes abstract implementation details from their interfaces:
+  server.hpp, server.cpp, session.hpp, session.cpp, topic.hpp, topic.cpp, common/message.hpp, common/message.cpp
+
+- Classes encapsulate behavior.
+  server.hpp, server.cpp, session.hpp, session.cpp, topic.hpp, topic.cpp, common/message.hpp, common/message.cpp
+
+- Classes follow an appropriate inheritance hierarchy.
+  common/message.hpp, common/message.cpp
+
+- Overloaded functions allow the same function to operate on different parameters.
+  session.hpp, session.cpp
+
+- Derived class functions override virtual base class functions:
+  TODO
+
+- Templates generalize functions in the project.
+  message_queue.hpp
+
+#### Memory management
+
+- The project makes use of references in function declarations.
+  server.cpp line 39
+
+- The project uses destructors appropriately:
+  server.hpp, session.hpp, topic.hpp, common/message.hpp
+
+- The project uses scope / Resource Acquisition Is Initialization (RAII) where appropriate.
+  server.hpp, server.cpp, session.hpp, session.cpp, topic.hpp, topic.cpp, common/message.hpp, common/message.cpp
+
+- The project follows the Rule of 5.
+  server.hpp, server.cpp, session.hpp, session.cpp, topic.hpp, topic.cpp, common/message.hpp, common/message.cpp
+
+- The project uses move semantics to move data, instead of copying it, where possible.
+  topic.cpp line 21 and 26, server.cpp line 56, client/client.cpp line 13, 32, 40 and 45
+
+- The project uses smart pointers instead of raw pointers.
+  server.cpp line 12, 18 and 27
+
+#### Concurrency
+
+- The project uses multithreading:
+  session.cpp line 30 and 51
+
+- A promise and future is used in the project:
+  session.cpp line 51
+
+- A mutex or lock is used in the project:
+  message_queue.hpp, server.cpp
+
+- A condition variable is used in the project:
+  message_queue.hpp
