@@ -27,8 +27,9 @@ void Session::Read() {
           _buffer.consume(length);
           Message msg;
           is >> msg;
-          auto result = std::async(std::launch::async ,&Server::ProcessPendingMessage, _server,
-                                   std::move(msg), std::ref(*this));
+          auto result =
+              std::async(std::launch::async, &Server::ProcessPendingMessage,
+                         _server, std::move(msg), std::ref(*this));
           result.wait();
         }
         Read();
