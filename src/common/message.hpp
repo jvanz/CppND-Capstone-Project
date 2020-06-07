@@ -11,8 +11,13 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_serialize.hpp>
 
+// each message send is terminated with special char
 constexpr unsigned char MESSAGE_TERMINATION_CHAR = '\t';
 
+/**
+ * All the message type used during communication between the queue system and
+ * clients
+ */
 enum MessageType {
   SUBSCRIBE = 0,       // listen to new message of a topic
   CREATE,              // create a new topic
@@ -23,20 +28,50 @@ enum MessageType {
   CANNOT_CREATE_TOPIC  // tell client topic creation failed
 };
 
+/**
+ * The base class to represent the message send and receive by the queue system
+ * server and its clients.
+ */
 class Message {
  public:
-  // TODO rule of five?
   Message() : _id{boost::uuids::random_generator()()} {};
   Message(MessageType type, std::string data);
   Message(MessageType type, std::string topic, std::string data);
+  Message(const Message &other)  // copy constructor
+      : _id(other._id),
+        _type(other._type),
+        _data(other._data),
+        _topic(other._topic){};
+  Message(Message &&other) noexcept  // move constructor
+  {
+    _id = std::move(other._id);
+    _type = std::move(other._type);
+    _data = std::move(other._data);
+    _topic = std::move(other._topic);
+  };
+  Message &operator=(const Message &other) {
+    return *this = Message(other);
+  };                                                  // copy assigment
+  Message &operator=(const Message &&other) noexcept  // move assigment
+  {
+    _id = std::move(other._id);
+    _type = std::move(other._type);
+    _data = std::move(other._data);
+    _topic = std::move(other._topic);
+    return *this;
+  };
+  ~Message(){};
+
   MessageType GetType() const { return _type; };
   std::string GetData() const { return _data; };
   std::string GetTopic() const { return _topic; };
   boost::uuids::uuid GetID() const { return _id; };
 
+  // friends operator used to serialize and deserialize messages
   friend std::ostream &operator<<(std::ostream &output, const Message &msg);
   friend std::istream &operator>>(std::istream &input, Message &msg);
-
+  // Boost serialization library is used to serialize the message sent in the
+  // wire
   friend class boost::serialization::access;
   template <class Archive>
   void serialize(Archive &ar, const unsigned int version) {
@@ -93,7 +128,7 @@ class CreateTopicMessage : public Message {
 
 /**
  * Sub class to represent a message to the client telling it that the topic has
- * benn created
+ * been created
  */
 class TopicCreatedMessage : public Message {
  public:
@@ -113,7 +148,7 @@ class CannotCreateTopicMessage : public Message {
 };
 
 /**
- * Input and outpur operator to serialize and deserialize Message objects
+ * Input and output operator to serialize and deserialize message objects
  */
 std::ostream &operator<<(std::ostream &output, const Message &msg);
 std::istream &operator>>(std::istream &input, Message &msg);
