@@ -6,17 +6,18 @@
 #include <unordered_map>
 
 #include <boost/asio.hpp>
-#include "common/message_queue.hpp"
+#include "message_queue.hpp"
 
 #include "session.hpp"
 #include "topic.hpp"
 
 using boost::asio::ip::tcp;
 
+// forward declarion
 class Session;
 
 /**
- * Class to store all the open connection and wait for more connections
+ * Class to store all the open connections and wait for more connections.
  */
 class Server {
  public:
