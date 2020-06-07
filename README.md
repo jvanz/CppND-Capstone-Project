@@ -108,14 +108,26 @@ Terminal 2:
 cd build
 # Run the producer program with the following arguments, queue system ip, port
 # and the topic name where the message will be published
-./producer localhost 8888 test
+./producer localhost 8888 test messages
 ```
 
 During the execution of the program, you will be able to see the ID of the messages
 send to the queue system. When all the messages are sent, the program wait for the
-user kill the program.
+user kill the program.  You can do this step multiple time, if you want to
 
-You can do this step multiple time, if you want to
+The producer read the messages from a file specified in the last command line
+argument. Each file of this file should container the message to be sent. You 
+can generate this file using the message_generator which is build together with the
+project:
+
+```bash
+cd build
+./message_genarator messages 1000
+```
+
+The program expects 2 arguments: the file path of the file where the messages will
+be written as well as the number of the message the file should contains.
+
 
 Terminal 3:
 ```
