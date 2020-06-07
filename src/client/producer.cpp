@@ -25,7 +25,9 @@ static void publishMessage(Client* producer, Message&& confirmationMessage) {
 int main(int argc, char* argv[]) {
   // get the data necessary to run
   if (argc != 4) {
-    std::cerr << "Invalid arguments. Expected: server port topic" << std::endl;
+    std::cerr << "Invalid arguments. Expected: producer <server address> "
+                 "<server port> <topic to publish messages>"
+              << std::endl;
     return -1;
   }
   std::string server(argv[1]);

@@ -1,6 +1,6 @@
 #include "client.hpp"
 
-Client::Client(boost::asio::io_context& io_context, std::string server,
+Client::Client(boost::asio::io_context &io_context, std::string server,
                std::string port)
     : _messagesReadCount(0), _messagesWriteCount(0), _socket(io_context) {
   tcp::resolver resolver(io_context);
@@ -45,7 +45,7 @@ void Client::PublishMessage(std::string topic, std::string data) {
   Write(std::move(message));
 }
 
-void Client::Write(Message&& message) {
+void Client::Write(Message &&message) {
   boost::asio::streambuf buffer;
   std::ostream os2(&buffer);
   os2 << message;

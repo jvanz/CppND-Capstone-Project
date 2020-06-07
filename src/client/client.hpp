@@ -9,14 +9,14 @@ using namespace std::chrono_literals;
 
 class Client;
 // Callback function type used in the Client class methods
-using ReadCallback = std::function<void(Client*, Message&&)>;
+using ReadCallback = std::function<void(Client *, Message &&)>;
 
 /**
  * Class with all the code to send and read data to the queue server.
  */
 class Client {
  public:
-  Client(boost::asio::io_context& io_context, std::string server,
+  Client(boost::asio::io_context &io_context, std::string server,
          std::string port);
   /**
    * Send a subscription request to the server.
@@ -54,7 +54,7 @@ class Client {
    *
    * @param message message to be sent
    */
-  void Write(Message&& message);
+  void Write(Message &&message);
   boost::asio::streambuf _read_buffer;
   boost::asio::streambuf _write_buffer;
   tcp::socket _socket;

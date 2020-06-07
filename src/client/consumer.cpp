@@ -52,7 +52,9 @@ void defaultSubscribeCallback(Client* consumer, Message&& msg) {
 int main(int argc, char* argv[]) {
   // get the data necessary to run
   if (argc != 4) {
-    std::cerr << "Invalid arguments. Expected: server port topic" << std::endl;
+    std::cerr << "Invalid arguments. Expected: consumer <server address> "
+                 "<server port> <topic to be listen>"
+              << std::endl;
     return -1;
   }
   std::string server(argv[1]);
