@@ -23,3 +23,5 @@ TARGET_LINK_LIBRARIES(producer ${Boost_LIBRARIES} pthread)
 
 add_executable(consumer src/client/consumer.cpp src/common/message.hpp src/common/message.cpp src/client/client.hpp src/client/client.cpp)
 TARGET_LINK_LIBRARIES(consumer ${Boost_LIBRARIES} pthread)
+
+add_executable(message_generator src/message_generator/main.cpp)
